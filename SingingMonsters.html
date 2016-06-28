@@ -1,0 +1,102 @@
+<!-- Creation Date: June 30, 2016 -->
+<!--Bradley Hamelin, My Singing Monsters Thesis Project -->
+<script src="blockly/blockly_compressed.js"></script>
+<script src="blockly/blocks_compressed.js"></script>
+<script src="blockly/javascript_compressed.js"></script>
+<script src="blockly/BlockBehaviour.js"></script>
+<script src="composition.js"></script>
+<script src="blockly/msg/js/en.js"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+
+<script>
+function gup(name)
+{
+  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp( regexS );
+  var results = regex.exec( window.location.href );
+  if( results == null )
+    return "";
+  else
+    return results[1];
+}
+
+var level = gup('level'); //Holds the current level selected by the user
+var playerScore; //Holds the score the player has coded
+var maxLevel = 5;
+</script>
+
+<head>
+<h1> <span id="title">My Singing Monsters</span> &nbsp;  
+
+<script>
+for (i = 0; i < maxLevel; i++) { 
+	if(i != level)
+		document.write('<a class="tab" href="?lang=en&amp;level='+i+'">'+i+'</a>');
+	else
+		document.write('<span class="tab" id="selected" href="?lang=en&amp;level='+i+'">'+i+'</span>');
+}
+</script>
+
+</h1>
+</head>
+<body>
+
+<div id="ExampleDiv">
+	<p id="demo">
+	<textarea id="ExampleSong" rows="4" cols="50">
+	</textarea>
+	<button onclick="exampleSong.playSong()">Play Example!</button>
+	</p>
+</div>
+
+
+<div id="ScoreDiv">
+	<p id="demo">
+	<textarea id="PlayerSong" rows="10" cols="50">
+	</textarea>
+	<button onclick="playerScore.playSong()">Play Song!</button>
+	</p>
+</div>
+
+
+<div id="blocklyDiv" style="height: 700px; width: 1920px;"></div>
+
+<script src="toolboxes.js"></script>
+<script src="SingingBlocks.js"></script>
+
+<script>
+var workspace = Blockly.inject('blocklyDiv',
+  {toolbox: document.getElementById('toolbox'+level),
+  zoom:
+	 {controls: true,
+	  wheel: true,
+	  startScale: 1.0,
+	  maxScale: 3,
+	  minScale: 0.3,
+	  scaleSpeed: 1.2},
+	  trashcan: true}
+  );
+  
+function myUpdateFunction(event) {
+	try {
+		var constructor = Blockly.JavaScript.workspaceToCode(workspace);
+		eval(constructor);
+		
+		// passed the test, now what...
+		//document.getElementById("demo").innerHTML = code;
+		playerScore.setNoteCode(playerScript);
+		document.getElementById("PlayerSong").value = playerScore.toString();
+	} catch (e) {
+		// failed so show the error
+		//document.getElementById("demo").innerHTML = e;
+		document.getElementById("PlayerSong").value = "fail: " + e;
+	}
+	
+}
+workspace.addChangeListener(myUpdateFunction);
+
+
+	
+	  
+</script>
