@@ -23,6 +23,7 @@ function gup(name)
 
 var level = gup('level'); //Holds the current level selected by the user
 var playerScore; //Holds the score the player has coded
+
 var maxLevel = 5;
 </script>
 
@@ -55,7 +56,7 @@ for (i = 0; i < maxLevel; i++) {
 	<p id="demo">
 	<textarea id="PlayerSong" rows="10" cols="50">
 	</textarea>
-	<button onclick="playerScore.playSong()">Play Song!</button>
+	<button onclick="instruments[0].playSong()">Play Song!</button>
 	</p>
 </div>
 
@@ -80,17 +81,36 @@ var workspace = Blockly.inject('blocklyDiv',
   
 function myUpdateFunction(event) {
 	try {
-		var constructor = Blockly.JavaScript.workspaceToCode(workspace);
-		eval(constructor);
+		instruments = [];//Clear the instruments array
+		playerScripts = [];//Clear the player script array
 		
-		// passed the test, now what...
-		//document.getElementById("demo").innerHTML = code;
-		playerScore.setNoteCode(playerScript);
-		document.getElementById("PlayerSong").value = playerScore.toString();
+		var constructor = Blockly.JavaScript.workspaceToCode(workspace);
+		
+		//Remove references to blocks that are not the origin block
+		var constructorList = constructor.split("\n");
+		var cleanConstructor = "";
+		for(var i = 0; i < constructorList.length; i++)
+		{
+			if(constructorList[i].startsWith("instruments.push(new Composition"))
+			{
+				cleanConstructor +=constructorList[i]+"\n";
+			}
+		}
+		
+		eval(cleanConstructor);
+		
+		//Set the song to play for each element
+		for(var i = 0; i < playerScripts.length; i++)
+		{
+			instruments[i].setNoteCode(playerScripts[i]);
+		}
+		
+		//document.getElementById("PlayerSong").value = instruments[0].toString();
+		document.getElementById("PlayerSong").value = cleanConstructor;
 	} catch (e) {
 		// failed so show the error
 		//document.getElementById("demo").innerHTML = e;
-		document.getElementById("PlayerSong").value = "fail: " + e;
+		document.getElementById("PlayerSong").value = "fail: " + cleanConstructor;
 	}
 	
 }

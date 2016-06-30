@@ -33,8 +33,8 @@ Blockly.JavaScript['composition'] = function(block) {
 	var enab = block.getFieldValue('Enabled');
 	var script = Blockly.JavaScript.statementToCode(block, 'Score');
 		
-	code = 'playerScore = new Composition("'+monster+ '","' +clef+'","","PlayerSong")';
-	playerScript = script;
+	code = 'instruments.push(new Composition("'+monster+ '","' +clef+'","","PlayerSong"))';
+	playerScripts.push(script);
 	
 	return code;
 }

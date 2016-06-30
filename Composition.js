@@ -1,6 +1,9 @@
 //Create global variable for the player's script
 var playerScript;
 
+var instruments = new Array();
+var playerScripts = new Array();
+
 //Create notes enumeration
 var letter = {
     A: 0,
