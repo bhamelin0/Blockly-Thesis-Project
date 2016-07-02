@@ -2,6 +2,7 @@
 var playerScript;
 
 var instruments = new Array();
+
 var playerScripts = new Array();
 
 //Create notes enumeration
@@ -35,6 +36,7 @@ var Composition = function(monster, clef, noteCode,location){
 	this.delayTime = 0;
 	this.preparedNotes = [];
 	this.location = location;
+	this.position = 0;
 };
 
 //Function to render the background of the div's musical notation.
@@ -78,21 +80,23 @@ Composition.prototype.setNoteCode = function(newNoteCode){
 this.noteCode = newNoteCode;
 }
 
+Composition.prototype.setPosition = function(pos){
+this.position = pos;
+}
+
 Composition.prototype.toString = function(){
     var out = this.monster + " " + this.clef + "\n" + this.noteCode;
     return out;
 }
 
 Composition.prototype.cancelSong = function(){
-	for (var i = 0; i < this.preparedNotes.length; i++) {
-		clearTimeout(this.preparedNotes[i]);
-		
+	for (var p = 0; p < this.preparedNotes.length; p++) {
+		clearTimeout(this.preparedNotes[p]);
 	}
 
 	//Reset the array
 	this.preparedNotes = [];
-	this.delayTime = 0;
-	
+	this.delayTime = 0;	
 }
 
 

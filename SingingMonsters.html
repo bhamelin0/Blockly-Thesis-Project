@@ -56,7 +56,8 @@ for (i = 0; i < maxLevel; i++) {
 	<p id="demo">
 	<textarea id="PlayerSong" rows="10" cols="50">
 	</textarea>
-	<button onclick="instruments[0].playSong()">Play Song!</button>
+	<button onclick="playPlayerMusic()">Play Song!</button>
+	<button onclick="stopPlayerMusic()">Stop!</button>
 	</p>
 </div>
 
@@ -103,6 +104,7 @@ function myUpdateFunction(event) {
 		for(var i = 0; i < playerScripts.length; i++)
 		{
 			instruments[i].setNoteCode(playerScripts[i]);
+			instruments[i].setPosition(i);
 		}
 		
 		//document.getElementById("PlayerSong").value = instruments[0].toString();
@@ -113,10 +115,24 @@ function myUpdateFunction(event) {
 		document.getElementById("PlayerSong").value = "fail: " + cleanConstructor;
 	}
 	
+	
 }
 workspace.addChangeListener(myUpdateFunction);
 
+function playPlayerMusic()
+{
+	for (var i = 0; i < instruments.length; i++) {
+    (function (x) {
+        setTimeout(function () { instruments[x].playSong(); }, 0);
+    })(i);
+	}
+}
 
-	
+function stopPlayerMusic()
+{
+	for (var i = 0; i < instruments.length; i++) {
+		instruments[i].cancelSong();
+	}
+}
 	  
 </script>
