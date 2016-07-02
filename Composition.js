@@ -73,7 +73,13 @@ Composition.prototype.playNote = function(note, octave){
 //Function to evaluate the notes and play the song
 Composition.prototype.playSong = function(){
 	this.cancelSong();
-	eval(this.noteCode);
+	
+	try {
+		eval(this.noteCode);
+	} catch (e) {
+		alert(e);
+	}
+	
 }
 
 Composition.prototype.setNoteCode = function(newNoteCode){

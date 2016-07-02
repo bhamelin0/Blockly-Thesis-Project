@@ -85,6 +85,9 @@ function myUpdateFunction(event) {
 		instruments = [];//Clear the instruments array
 		playerScripts = [];//Clear the player script array
 		
+		
+		window.LoopTrap = 1000;
+		Blockly.JavaScript.INFINITE_LOOP_TRAP = 'if(--window.LoopTrap == 0) throw "Infinite loop.";\n';
 		var constructor = Blockly.JavaScript.workspaceToCode(workspace);
 		
 		//Remove references to blocks that are not the origin block
