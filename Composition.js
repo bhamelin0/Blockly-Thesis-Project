@@ -37,6 +37,7 @@ var Composition = function(monster, clef, noteCode,location){
 	this.preparedNotes = [];
 	this.location = location;
 	this.position = 0;
+	this.startDelayTime = 0;
 };
 
 //Function to render the background of the div's musical notation.
@@ -86,6 +87,10 @@ Composition.prototype.setNoteCode = function(newNoteCode){
 this.noteCode = newNoteCode;
 }
 
+Composition.prototype.setStartDelay = function(newDelay){
+this.startDelayTime = newDelay;
+}
+
 Composition.prototype.setPosition = function(pos){
 this.position = pos;
 }
@@ -102,7 +107,7 @@ Composition.prototype.cancelSong = function(){
 
 	//Reset the array
 	this.preparedNotes = [];
-	this.delayTime = 0;	
+	this.delayTime = this.startDelayTime;	
 }
 
 

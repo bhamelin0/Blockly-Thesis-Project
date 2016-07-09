@@ -122,12 +122,26 @@ function myUpdateFunction(event) {
 }
 workspace.addChangeListener(myUpdateFunction);
 
+//Function to queue up each instrument's notes using the player generated code.
+//Plays the sounds of the music and draws the notes to the screen as the song goes on.
 function playPlayerMusic()
 {
+	var delay = 500;
+
 	for (var i = 0; i < instruments.length; i++) {
-    (function (x) {
-        setTimeout(function () { instruments[x].playSong(); }, 0);
-    })(i);
+	
+		var a = performance.now();
+		
+		//Set a starting delay time for each element in order to provide padding for each instrument to sync up.
+		instruments[i].setStartDelay(delay);
+		instruments[i].playSong();
+		
+		var b = performance.now();
+		
+		// however long it takes to queue this song, subtract it from the startup time for the next song.
+		//This will allow notes to be played as directly on top of each other as possible.
+		delay -= (b-a); 
+		
 	}
 }
 

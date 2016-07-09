@@ -246,3 +246,22 @@ Blockly.JavaScript['vwhole'] = function(block) {
 	code += Blockly.JavaScript.valueToCode(block, 'Note', Blockly.JavaScript.ORDER_ADDITION) || ''
 	return [code, Blockly.JavaScript.ORDER_MEMBER];
 }
+
+Blockly.Blocks['numbervariable'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField(new Blockly.FieldVariable("item"), "Octave");
+    this.setOutput(true, "Number");
+    this.setColour(120);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+Blockly.JavaScript['numbervariable'] = function(block) {
+	var octave = block.getFieldValue('Octave');
+	var code = octave;
+	code += Blockly.JavaScript.valueToCode(block, 'Note', Blockly.JavaScript.ORDER_ADDITION) || ''
+	return [code, Blockly.JavaScript.ORDER_MEMBER];
+}
+

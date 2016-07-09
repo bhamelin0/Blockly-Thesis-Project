@@ -18,6 +18,7 @@ document.write('\
   <category name="Variables" colour="100">\
   <block type="variables_set"></block>\
   <block type="variables_get"></block>\
+  <block type="numbervariable"></block>\
   </category>\
   \
   <category name="Monsters" colour="200">\
