@@ -4,16 +4,16 @@
 <script src="blockly/blocks_compressed.js"></script>
 <script src="blockly/javascript_compressed.js"></script>
 <script src="blockly/BlockBehaviour.js"></script>
+<script src="Sprite.js"></script>
 <script src="composition.js"></script>
 <script src="blockly/msg/js/en.js"></script>
 <link rel="stylesheet" type="text/css" href="style.css">
 
 <script>
-function gup(name)
+function retrieveGET(varName)
 {
-  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-  var regexS = "[\\?&]"+name+"=([^&#]*)";
-  var regex = new RegExp( regexS );
+  varName = varName.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");//Clean up input for the name
+  var regex = new RegExp("[\\?&]"+varName+"=([^&#]*)");
   var results = regex.exec( window.location.href );
   if( results == null )
     return "";
@@ -21,7 +21,7 @@ function gup(name)
     return results[1];
 }
 
-var level = gup('level'); //Holds the current level selected by the user
+var level = retrieveGET('level'); //Holds the current level selected by the user
 var playerScore; //Holds the score the player has coded
 
 var maxLevel = 5;
@@ -43,24 +43,39 @@ for (i = 0; i < maxLevel; i++) {
 </head>
 <body>
 
+<div id="noteSection">
 <div id="ExampleDiv">
 	<p id="demo">
-	<textarea id="ExampleSong" rows="4" cols="50">
+	<textarea hidden id="ExampleSong" rows="4" cols="50">
 	</textarea>
-	<button onclick="exampleSong.playSong()">Play Example!</button>
+	<button onclick="playExampleMusic()">Play Example!</button>
+	<button onclick="stopExampleMusic()">Stop!</button>
+	
 	</p>
+	<canvas id="exampleCanvas" width="600" height="100" style="border:0px solid #0;">
+		Your browser does not support the HTML5 canvas tag.
+	</canvas>
+
+	
 </div>
 
 
 <div id="ScoreDiv">
 	<p id="demo">
-	<textarea id="PlayerSong" rows="10" cols="50">
+	<textarea hidden id="PlayerSong" rows="4" cols="50">
 	</textarea>
 	<button onclick="playPlayerMusic()">Play Song!</button>
 	<button onclick="stopPlayerMusic()">Stop!</button>
 	</p>
+	
+	<canvas id="playerCanvas" width="600" height="100" style="border:0px solid #0;">
+		Your browser does not support the HTML5 canvas tag.
+	</canvas>
 </div>
 
+</div>
+
+<p><b>You have <span id="capacity"></span> block(s) left.</b></p>
 
 <div id="blocklyDiv" style="height: 700px; width: 1920px;"></div>
 
@@ -68,8 +83,13 @@ for (i = 0; i < maxLevel; i++) {
 <script src="SingingBlocks.js"></script>
 
 <script>
+//Initialize the height of the example by how many elements are in it
+var c = document.getElementById("exampleCanvas");
+c.height = exampleInstruments.length * 100;
+
 var workspace = Blockly.inject('blocklyDiv',
   {toolbox: document.getElementById('toolbox'+level),
+  maxBlocks: blocksOnLevels[level],
   zoom:
 	 {controls: true,
 	  wheel: true,
@@ -79,12 +99,31 @@ var workspace = Blockly.inject('blocklyDiv',
 	  scaleSpeed: 1.2},
 	  trashcan: true}
   );
+
+//Update the block limit
+document.getElementById('capacity').innerHTML = workspace.remainingCapacity();
+workspace.addChangeListener(myUpdateFunction);
+
+//Start animating the canvases
+draw();
+
+//Initializes the first song
+var timer = setTimeout(function(){
+        playPlayerMusic();
+		playExampleMusic();
+},1);
+
   
+
+//***************Function library************************
+//Handles updates to the blockly interface
 function myUpdateFunction(event) {
 	try {
 		instruments = [];//Clear the instruments array
 		playerScripts = [];//Clear the player script array
 		
+		document.getElementById('capacity').innerHTML =
+        workspace.remainingCapacity();
 		
 		window.LoopTrap = 1000;
 		Blockly.JavaScript.INFINITE_LOOP_TRAP = 'if(--window.LoopTrap == 0) throw "Infinite loop.";\n';
@@ -103,12 +142,24 @@ function myUpdateFunction(event) {
 		
 		eval(cleanConstructor);
 		
+		//Update the canvas for the player
+		var c = document.getElementById("playerCanvas");
+		c.height = instruments.length * 100;
+		
 		//Set the song to play for each element
 		for(var i = 0; i < playerScripts.length; i++)
 		{
 			instruments[i].setNoteCode(playerScripts[i]);
 			instruments[i].setPosition(i);
+			instruments[i].drawNoteScore();
 		}
+		
+
+		
+		//Draw the monster and the empty score for the player's scores
+		
+		
+		
 		
 		//document.getElementById("PlayerSong").value = instruments[0].toString();
 		document.getElementById("PlayerSong").value = cleanConstructor;
@@ -120,12 +171,20 @@ function myUpdateFunction(event) {
 	
 	
 }
-workspace.addChangeListener(myUpdateFunction);
+
 
 //Function to queue up each instrument's notes using the player generated code.
 //Plays the sounds of the music and draws the notes to the screen as the song goes on.
 function playPlayerMusic()
 {
+	//Prepare the canvas objects
+	var c = document.getElementById("playerCanvas");
+	var ctx = c.getContext("2d");
+	
+	c.height = instruments.length * 100;
+	ctx.clearRect(0, 0, c.width, c.height);
+
+	
 	var delay = 500;
 
 	for (var i = 0; i < instruments.length; i++) {
@@ -145,11 +204,67 @@ function playPlayerMusic()
 	}
 }
 
+//Function to queue up each instrument's notes using the player generated code.
+//Plays the sounds of the music and draws the notes to the screen as the song goes on.
+function playExampleMusic()
+{
+	//Prepare the canvas objects
+	var c = document.getElementById("exampleCanvas");
+	var ctx = c.getContext("2d");
+	
+	c.height = exampleInstruments.length * 100;
+	ctx.clearRect(0, 0, c.width, c.height);
+
+	
+	var delay = 500;
+
+	for (var i = 0; i < exampleInstruments.length; i++) {
+	
+		var a = performance.now();
+		
+		//Set a starting delay time for each element in order to provide padding for each instrument to sync up.
+		exampleInstruments[i].setStartDelay(delay);
+		exampleInstruments[i].playSong();
+		
+		var b = performance.now();
+		
+		// however long it takes to queue this song, subtract it from the startup time for the next song.
+		//This will allow notes to be played as directly on top of each other as possible.
+		delay -= (b-a); 
+		
+	}
+	
+}
+
+//Stops the player music from playing
 function stopPlayerMusic()
 {
 	for (var i = 0; i < instruments.length; i++) {
 		instruments[i].cancelSong();
 	}
 }
-	  
+
+function stopExampleMusic()
+{
+	for (var i = 0; i < exampleInstruments.length; i++) {
+		exampleInstruments[i].cancelSong();
+	}
+}
+	
+//Function to handle the drawing of the canvas based on animation frame requests
+function draw()
+{
+	
+	
+	//Draw the player canvas
+	//Draw the background score & sprite
+	//Draw the notes array
+	
+	//Draw the example canvas
+	//Draw the background score & sprite
+	//Draw the notes array
+	
+	//Call for the next frame
+	window.requestAnimationFrame(draw);
+}	
 </script>
