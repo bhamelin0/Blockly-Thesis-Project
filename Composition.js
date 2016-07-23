@@ -6,6 +6,9 @@ var playerScripts = new Array();//Contains the blockly play note code made by us
 
 var blocksOnLevels = [50,50,5,5,5]; //Contains maximum count of blocks allowed
 
+var playerFrozen = false; // Allow updates to the canvas objects
+var exampleFrozen = false; // Allow updates to the canvas objects
+
 //Load the images used to create the visual components of the project
 var imgScore = new Image();   // creates an image element
 imgScore.src = "Assets/Score.png";
@@ -80,13 +83,7 @@ var Composition = function(monster, clef, noteCode,location){
 	{
 		this.canvas = "exampleCanvas";
 	}
-	
 };
-
-//Function to render the background of the div's musical notation.
-Composition.prototype.draw = function(){
-	//evaluateScore;
-}
 
 Composition.prototype.playNote = function(note, octave){
 	octave = octave % 7;	
@@ -106,7 +103,8 @@ Composition.prototype.playNote = function(note, octave){
 		this.preparedNotes.push(setTimeout(function(){
 			document.getElementById(that.location).value += octave;
 			that.noteString += octave;
-			ctx.drawImage(imgWhole, nextNoteDistance,that.height + octave*6,30,30);                  // the image to draw
+			that.spriteBuffer.push(new Sprite(imgWhole, nextNoteDistance,that.height + octave*6,30,30))//The array of notes for drawing
+			//ctx.drawImage(imgWhole, nextNoteDistance,that.height + octave*6,30,30);                  // the image to draw
 		},this.delayTime));
 		this.delayTime += 2000 * this.tempo;
 		this.nextNoteDistance = this.nextNoteDistance +this.noteDistance;
@@ -115,7 +113,8 @@ Composition.prototype.playNote = function(note, octave){
 		this.preparedNotes.push(setTimeout(function(){
 			document.getElementById(that.location).value += octave;
 			that.noteString += octave;
-			ctx.drawImage(imgHalf,nextNoteDistance,that.height + octave*6,30,30);                  // the image to draw
+			that.spriteBuffer.push(new Sprite(imgHalf, nextNoteDistance,that.height + octave*6,30,30))//The array of notes for drawing
+			//ctx.drawImage(imgHalf,nextNoteDistance,that.height + octave*6,30,30);                  // the image to draw
 		},this.delayTime));
 		this.delayTime +=1000 * this.tempo;
 		this.nextNoteDistance = this.nextNoteDistance +this.noteDistance/2;
@@ -124,7 +123,8 @@ Composition.prototype.playNote = function(note, octave){
 		this.preparedNotes.push(setTimeout(function(){
 			document.getElementById(that.location).value += octave;
 			that.noteString += octave;
-			ctx.drawImage(imgQuarter, nextNoteDistance,that.height + octave*6,30,30);                  // the image to draw
+			that.spriteBuffer.push(new Sprite(imgQuarter, nextNoteDistance,that.height + octave*6,30,30))//The array of notes for drawing
+			//ctx.drawImage(imgQuarter, nextNoteDistance,that.height + octave*6,30,30);                  // the image to draw
 		},this.delayTime));
 		this.delayTime += 500 * this.tempo;
 		this.nextNoteDistance = this.nextNoteDistance +this.noteDistance/4;
@@ -133,7 +133,8 @@ Composition.prototype.playNote = function(note, octave){
 		this.preparedNotes.push(setTimeout(function(){
 			document.getElementById(that.location).value += octave;
 			that.noteString += octave;
-			ctx.drawImage(imgEighth, nextNoteDistance,that.height + octave*6,30,30);                  // the image to draw
+			that.spriteBuffer.push(new Sprite(imgEighth, nextNoteDistance,that.height + octave*6,30,30))//The array of notes for drawing
+			//ctx.drawImage(imgEighth, nextNoteDistance,that.height + octave*6,30,30);                  // the image to draw
 		},this.delayTime));
 		this.delayTime += 250 * this.tempo;
 		this.nextNoteDistance = this.nextNoteDistance +this.noteDistance/8;
@@ -147,9 +148,7 @@ Composition.prototype.playNote = function(note, octave){
 //Function to evaluate the notes and play the song
 Composition.prototype.playSong = function(){
 	this.cancelSong();
-	
-	this.drawNoteScore();
-	
+
 	try {
 		eval(this.noteCode);
 	} catch (e) {
@@ -182,28 +181,25 @@ Composition.prototype.cancelSong = function(){
 
 	//Reset the array
 	this.preparedNotes = [];
+	this.spriteBuffer = [];
 	this.delayTime = this.startDelayTime;	
 	this.noteNumber = 0;
 	this.nextNoteDistance = 0;
+	
 }
 
 //Function to set up the preliminary drawing of the score, and the monster above it for identification purposes.
 Composition.prototype.drawNoteScore = function(){
-	
-	
-	
 	var c = document.getElementById(this.canvas);
 	var ctx = c.getContext("2d");
 	
 	ctx.drawImage(imgScore, 0,this.height,600,100);                  // the image to draw
 	
 	//Draw the monster atop the score sheet
-    
-	
+    for (var p = 0; p < this.spriteBuffer.length; p++) {
+		ctx.drawImage(this.spriteBuffer[p].getImage(), this.spriteBuffer[p].getX(),this.spriteBuffer[p].getY(),this.spriteBuffer[p].getWidth(),this.spriteBuffer[p].getHeight());  
+	}
 }
-
-
-
 
 //Create an instance of a composition
 exampleInstruments[0] = new Composition("furcorn","treble clef","this.playNote(3,0)","ExampleSong");

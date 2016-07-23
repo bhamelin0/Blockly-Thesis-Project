@@ -55,14 +55,12 @@ for (i = 0; i < maxLevel; i++) {
 	<canvas id="exampleCanvas" width="600" height="100" style="border:0px solid #0;">
 		Your browser does not support the HTML5 canvas tag.
 	</canvas>
-
-	
 </div>
 
 
 <div id="ScoreDiv">
 	<p id="demo">
-	<textarea hidden id="PlayerSong" rows="4" cols="50">
+	<textarea id="PlayerSong" rows="4" cols="50">
 	</textarea>
 	<button onclick="playPlayerMusic()">Play Song!</button>
 	<button onclick="stopPlayerMusic()">Stop!</button>
@@ -72,7 +70,6 @@ for (i = 0; i < maxLevel; i++) {
 		Your browser does not support the HTML5 canvas tag.
 	</canvas>
 </div>
-
 </div>
 
 <p><b>You have <span id="capacity"></span> block(s) left.</b></p>
@@ -119,6 +116,10 @@ var timer = setTimeout(function(){
 //Handles updates to the blockly interface
 function myUpdateFunction(event) {
 	try {
+	
+		//Freeze the drawing until song is played again
+		playerFrozen = true;
+		
 		instruments = [];//Clear the instruments array
 		playerScripts = [];//Clear the player script array
 		
@@ -142,16 +143,12 @@ function myUpdateFunction(event) {
 		
 		eval(cleanConstructor);
 		
-		//Update the canvas for the player
-		var c = document.getElementById("playerCanvas");
-		c.height = instruments.length * 100;
-		
 		//Set the song to play for each element
 		for(var i = 0; i < playerScripts.length; i++)
 		{
 			instruments[i].setNoteCode(playerScripts[i]);
 			instruments[i].setPosition(i);
-			instruments[i].drawNoteScore();
+			//instruments[i].drawNoteScore();
 		}
 		
 
@@ -162,28 +159,21 @@ function myUpdateFunction(event) {
 		
 		
 		//document.getElementById("PlayerSong").value = instruments[0].toString();
-		document.getElementById("PlayerSong").value = cleanConstructor;
+		//document.getElementById("PlayerSong").value = cleanConstructor;
 	} catch (e) {
 		// failed so show the error
 		//document.getElementById("demo").innerHTML = e;
 		document.getElementById("PlayerSong").value = "fail: " + cleanConstructor;
 	}
-	
-	
 }
 
 
 //Function to queue up each instrument's notes using the player generated code.
 //Plays the sounds of the music and draws the notes to the screen as the song goes on.
 function playPlayerMusic()
-{
-	//Prepare the canvas objects
-	var c = document.getElementById("playerCanvas");
-	var ctx = c.getContext("2d");
-	
-	c.height = instruments.length * 100;
-	ctx.clearRect(0, 0, c.width, c.height);
-
+{	
+	//Unfreeze
+	playerFrozen = false;
 	
 	var delay = 500;
 
@@ -208,14 +198,9 @@ function playPlayerMusic()
 //Plays the sounds of the music and draws the notes to the screen as the song goes on.
 function playExampleMusic()
 {
-	//Prepare the canvas objects
-	var c = document.getElementById("exampleCanvas");
-	var ctx = c.getContext("2d");
-	
-	c.height = exampleInstruments.length * 100;
-	ctx.clearRect(0, 0, c.width, c.height);
-
-	
+	//Unfreeze
+	exampleFrozen = false;
+		
 	var delay = 500;
 
 	for (var i = 0; i < exampleInstruments.length; i++) {
@@ -242,6 +227,9 @@ function stopPlayerMusic()
 	for (var i = 0; i < instruments.length; i++) {
 		instruments[i].cancelSong();
 	}
+	
+	//Freeze the drawing until song is played again
+	playerFrozen = true;
 }
 
 function stopExampleMusic()
@@ -249,22 +237,57 @@ function stopExampleMusic()
 	for (var i = 0; i < exampleInstruments.length; i++) {
 		exampleInstruments[i].cancelSong();
 	}
+	
+	//Freeze the drawing until song is played again
+	exampleFrozen = true;
 }
 	
 //Function to handle the drawing of the canvas based on animation frame requests
 function draw()
-{
+{	
+
+	if(playerFrozen == false)
+	{
+		//Prepare the canvas objects
+		var c = document.getElementById("playerCanvas");
+		var ctx = c.getContext("2d");
+		
+		c.height = instruments.length * 100;
+		ctx.clearRect(0, 0, c.width, c.height);
+
+		for (var i = 0; i < instruments.length; i++) {
+			instruments[i].drawNoteScore();
+		}
+		
+		//document.getElementById("PlayerSong").value += "0";
+		//Draw the player canvas
+		//Draw the background score & sprite
+		//Draw the notes array
+		
+		//Draw the example canvas
+		//Draw the background score & sprite
+		//Draw the notes array
+		
+	}
 	
-	
-	//Draw the player canvas
-	//Draw the background score & sprite
-	//Draw the notes array
-	
-	//Draw the example canvas
-	//Draw the background score & sprite
-	//Draw the notes array
+	if(exampleFrozen == false)
+	{
+		//Prepare the canvas objects
+		var c = document.getElementById("exampleCanvas");
+		var ctx = c.getContext("2d");
+		
+		c.height = exampleInstruments.length * 100;
+		ctx.clearRect(0, 0, c.width, c.height);
+
+		for (var i = 0; i < exampleInstruments.length; i++) {
+			exampleInstruments[i].drawNoteScore();
+		}
+		
+		
+	}
 	
 	//Call for the next frame
 	window.requestAnimationFrame(draw);
+	
 }	
 </script>
