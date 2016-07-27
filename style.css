@@ -20,16 +20,23 @@
     padding:5px;
 }
 
+#playerCanvasScroller {
+	overflow: auto;
+	overflow-y: hidden;
+}
+
+#exampleCanvasScroller{
+	overflow: auto;
+	overflow-y: hidden;
+}
+
 #capacity {
   color: red;
 }
 
-#blockly {
+#blocklyDiv {
   height: 300px;
-  width: 100%;
-  border-style: solid;
-  border-color: #ddd;
-  border-width: 0 1px 1px 0;
+
 }
 
 body {
