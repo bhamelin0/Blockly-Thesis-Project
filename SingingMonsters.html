@@ -45,7 +45,7 @@ for (i = 0; i < maxLevel; i++) {
 
 <div id="noteSection">
 <div id="ExampleDiv">
-	<textarea hidden id="ExampleSong" rows="4" cols="50">
+	<textarea id="ExampleSong" rows="4" cols="50">
 	</textarea>
 	<button onclick="playExampleMusic()">Play Example!</button>
 	<button onclick="stopExampleMusic()">Stop!</button>
@@ -59,7 +59,7 @@ for (i = 0; i < maxLevel; i++) {
 
 
 <div id="ScoreDiv">
-	<textarea hidden id="PlayerSong" rows="4" cols="50">
+	<textarea id="PlayerSong" rows="4" cols="50">
 	</textarea>
 	<button onclick="playPlayerMusic()">Play Song!</button>
 	<button onclick="stopPlayerMusic()">Stop!</button>
@@ -110,7 +110,6 @@ var timer = setTimeout(function(){
 		playExampleMusic();
 },1);
 
-  
 
 //***************Function library************************
 //Handles updates to the blockly interface
@@ -235,7 +234,6 @@ function stopExampleMusic()
 //Function to handle the drawing of the canvas based on animation frame requests
 function draw()
 {	
-
 	if(playerFrozen == false)
 	{
 		//Prepare the canvas objects
@@ -257,9 +255,17 @@ function draw()
 		//Scroll if notes are still queued
 		if(donePlaying != instruments.length){
 			playerCanvasScroller.scrollLeft += 1;
+			document.getElementById("PlayerSong").value = "";
+		}
+		else //Finished playing. check if songs match
+		{
+			if(checkVictory() == true)
+			{
+				document.getElementById("PlayerSong").value = "WINNER!";
+			}
 		}
 	}
-	
+		
 	if(exampleFrozen == false)
 	{
 		//Prepare the canvas objects
@@ -269,6 +275,8 @@ function draw()
 		
 		c.height = exampleInstruments.length * 100;
 		ctx.clearRect(0, 0, c.width, c.height);
+		ctx.fillStyle="#FF0000";
+		ctx.fillRect(0,0,c.width,c.height);
 
 		for (var i = 0; i < exampleInstruments.length; i++) {
 			exampleInstruments[i].drawNoteScore();
@@ -282,10 +290,52 @@ function draw()
 		if(donePlaying != exampleInstruments.length){
 			exampleCanvasScroller.scrollLeft += 1;
 		}
-		
 	}
 	
 	//Call for the next frame
 	window.requestAnimationFrame(draw);
 }	
+
+
+//Function to determine if the player has won the level or not
+function checkVictory(victoryStrings)
+{
+	var playerStrings = new Array();
+	
+	//If there is no defined victory string, pull it from the example note interface
+	if(victoryStrings == null)
+	{
+		victoryStrings = new Array();
+		
+		for(var i = 0; i < exampleInstruments.length; i++)
+		{	
+			victoryStrings.push(exampleInstruments[i].getNoteString());
+		}
+		
+	}
+	
+	for(var i = 0; i < instruments.length; i++)
+	{
+		playerStrings.push(instruments[i].getNoteString());
+	}
+	
+	if(playerStrings.length != victoryStrings.length)
+	{
+		return false;
+	}
+	
+	playerStrings.sort();
+	victoryStrings.sort();
+	
+	for(var i = 0; i < instruments.length; i++)
+	{
+		if(playerStrings[i].localeCompare(victoryStrings[i])!=0)
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
+
 </script>

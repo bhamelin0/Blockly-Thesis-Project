@@ -50,7 +50,7 @@ var Composition = function(monster, clef, noteCode,location){
 	this.monster = monster;				//Monster singing the song
 	this.clef = clef;					//Clef the user is playing their music in
 	this.noteCode = noteCode;			//User generated javascript
-	this.noteString = "";				//Holds the code of the song generated. Used to determine win/lose
+
 	this.preparedNotes = [];			//Array of notes to be played; Used to keep track of queue of notes
 	
 	this.tempo = 1;						//Speed of song
@@ -100,8 +100,7 @@ Composition.prototype.playNote = function(note, octave){
 	switch(note) {
     case noteType.Whole:
 		this.preparedNotes.push(setTimeout(function(){
-			document.getElementById(that.location).value += octave;
-			that.noteString += octave;
+			that.noteString += "w"+octave;
 			that.spriteBuffer.push(new Sprite(imgWhole, nextNoteDistance,that.height + octave*6,30,30))//The array of notes for drawing
 			that.notesPlayed++;
 			if (nextNoteDistance+100 > c.width)
@@ -115,8 +114,7 @@ Composition.prototype.playNote = function(note, octave){
         break;
     case noteType.Half:
 		this.preparedNotes.push(setTimeout(function(){
-			document.getElementById(that.location).value += octave;
-			that.noteString += octave;
+			that.noteString += "h"+octave;
 			that.spriteBuffer.push(new Sprite(imgHalf, nextNoteDistance,that.height + octave*6,30,30))//The array of notes for drawing
 			that.notesPlayed++;
 			if (nextNoteDistance+100 > c.width)
@@ -129,8 +127,7 @@ Composition.prototype.playNote = function(note, octave){
         break;
 	case noteType.Quarter:   
 		this.preparedNotes.push(setTimeout(function(){
-			document.getElementById(that.location).value += octave;
-			that.noteString += octave;
+			that.noteString += "q"+octave;
 			that.spriteBuffer.push(new Sprite(imgQuarter, nextNoteDistance,that.height + octave*6,30,30))//The array of notes for drawing
 			that.notesPlayed++;
 			if (nextNoteDistance+100 > c.width)
@@ -143,8 +140,7 @@ Composition.prototype.playNote = function(note, octave){
         break;
     case noteType.Eighth:
 		this.preparedNotes.push(setTimeout(function(){
-			document.getElementById(that.location).value += octave;
-			that.noteString += octave;
+			that.noteString += "e"+octave;
 			that.spriteBuffer.push(new Sprite(imgEighth, nextNoteDistance,that.height + octave*6,30,30))//The array of notes for drawing
 			that.notesPlayed++;
 			if (nextNoteDistance+100 > c.width)
@@ -164,6 +160,7 @@ Composition.prototype.playNote = function(note, octave){
 //Function to evaluate the notes and play the song
 Composition.prototype.playSong = function(){
 	this.cancelSong();
+	this.noteString = "";
 
 	var c = document.getElementById(this.canvas);
 	c.width = 600;
@@ -177,8 +174,6 @@ Composition.prototype.playSong = function(){
 
 Composition.prototype.songFinished = function(){
 	
-	document.getElementById("PlayerSong").value = "Notes played: " + this.notesPlayed + " Notes queued: " + this.notesQueued;
-	
 	if(this.notesPlayed == this.notesQueued)
 	{
 		return true;
@@ -187,6 +182,10 @@ Composition.prototype.songFinished = function(){
 	else{
 		return false;
 	}
+}
+
+Composition.prototype.getNoteString = function(){
+	return this.noteString;
 }
 
 Composition.prototype.setNoteCode = function(newNoteCode){
@@ -217,10 +216,8 @@ Composition.prototype.cancelSong = function(){
 	this.spriteBuffer = [];
 	this.delayTime = this.startDelayTime;	
 	this.noteNumber = 0;
-	this.nextNoteDistance = 0;
-	
+	this.nextNoteDistance = 0;	
 }
-
 
 //Function to set up the preliminary drawing of the score, and the monster above it for identification purposes.
 Composition.prototype.drawNoteScore = function(){
@@ -230,15 +227,19 @@ Composition.prototype.drawNoteScore = function(){
 	//TODO for the length of the canvas, draw bars
 	ctx.drawImage(imgScore, 0,this.height,600,100);                  // the image to draw
 	
-	
 	//Draw the monster atop the score sheet
     for (var p = 0; p < this.spriteBuffer.length; p++) {
 		ctx.drawImage(this.spriteBuffer[p].getImage(), this.spriteBuffer[p].getX(),this.spriteBuffer[p].getY(),this.spriteBuffer[p].getWidth(),this.spriteBuffer[p].getHeight());  
 	}
-	
-	
 }
 
 //Create an instance of a composition
-exampleInstruments[0] = new Composition("furcorn","treble clef","this.playNote(3,0)","ExampleSong");
+exampleInstruments.push(new Composition("furcorn","treble clef","this.playNote(3,0); this.playNote(3,1); this.playNote(4,1);","ExampleSong"));
+exampleInstruments.push(new Composition("furcorn","treble clef","this.playNote(3,1); this.playNote(2,1); this.playNote(2,1);","ExampleSong"));
+//exampleInstruments.push(new Composition("furcorn","treble clef","this.playNote(3,2); this.playNote(1,1); this.playNote(1,1);","ExampleSong"));
 
+for(var i=0; i < exampleInstruments.length; i++)
+{
+	exampleInstruments[i].setPosition(i);
+
+}
